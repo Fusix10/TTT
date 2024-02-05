@@ -18,5 +18,36 @@
     <ClCompile Include="TTT.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="GameRender.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicTicTacToe.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameRender.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicTicTacToe.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="..\..\..\..\..\..\Windows\Fonts\ARIAL.TTF">
+      <Filter>Fichiers de ressources</Filter>
+    </Font>
+    <Font Include="..\..\..\..\..\..\Windows\Fonts\ARIBLK.TTF">
+      <Filter>Fichiers de ressources</Filter>
+    </Font>
+    <Font Include="..\..\..\..\..\..\Windows\Fonts\ARIALBD.TTF">
+      <Filter>Fichiers de ressources</Filter>
+    </Font>
+    <Font Include="..\..\..\..\..\..\Windows\Fonts\ARIALBI.TTF">
+      <Filter>Fichiers de ressources</Filter>
+    </Font>
+    <Font Include="..\..\..\..\..\..\Windows\Fonts\ARIALI.TTF">
+      <Filter>Fichiers de ressources</Filter>
+    </Font>
   </ItemGroup>
 </Project>
