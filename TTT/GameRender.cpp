@@ -25,6 +25,7 @@ void GameRenderer::DrawBoard(const LogicTicTacToe& ticTacToeLogic) {
         Window.draw(Line);
     }
 
+
     // Dessine les lignes horizontales
     for (int j = 1; j < ticTacToeLogic.GetBord().y; ++j) {
         sf::VertexArray Line(sf::Lines, 2);
