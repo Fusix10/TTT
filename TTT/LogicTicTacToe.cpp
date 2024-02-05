@@ -34,21 +34,45 @@ bool LogicTicTacToe::CheckWin() {
     for (int i = 0; i < Bord.size(); ++i) {
         // Vérification des colonnes
         if (Bord[i][0] != ' ' && Bord[i][0] == Bord[i][1] && Bord[i][1] == Bord[i][2]) {
+            if (ActuelPlayer == 1) {
+                ActuelPlayer = 2;
+            }
+            else {
+                ActuelPlayer = 1;
+            }
             return true;
         }
 
         // Vérification des lignes
         if (Bord[0][i] != ' ' && Bord[0][i] == Bord[1][i] && Bord[1][i] == Bord[2][i]) {
+            if (ActuelPlayer == 1) {
+                ActuelPlayer = 2;
+            }
+            else {
+                ActuelPlayer = 1;
+            }
             return true;
         }
     }
 
     // Vérification des diagonales
     if (Bord[0][0] != ' ' && Bord[0][0] == Bord[1][1] && Bord[1][1] == Bord[2][2]) {
+        if (ActuelPlayer == 1) {
+            ActuelPlayer = 2;
+        }
+        else {
+            ActuelPlayer = 1;
+        }
         return true;
     }
 
     if (Bord[0][2] != ' ' && Bord[0][2] == Bord[1][1] && Bord[1][1] == Bord[2][0]) {
+        if (ActuelPlayer == 1) {
+            ActuelPlayer = 2;
+        }
+        else {
+            ActuelPlayer = 1;
+        }
         return true;
     }
 

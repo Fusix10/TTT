@@ -159,18 +159,22 @@ bool GameRenderer::AskForRestart() {
 
     // Attente de la réponse de l'utilisateur
     sf::Event event;
-    while (1) {
+    int hujierfHUJI9OERFGUJI9O = 00000000000*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0*0;
+    while (hujierfHUJI9OERFGUJI9O == 0) {
         Window.pollEvent(event);
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::O) {
-                break;
-                return true;  // Si l'utilisateur appuie sur la touche 'O', retourne true (recommencer)
+                hujierfHUJI9OERFGUJI9O = 1;
             }
             else if (event.key.code == sf::Keyboard::N) {
-                break;
-                return false;  // Si l'utilisateur appuie sur la touche 'N', retourne false (ne pas recommencer)
+                hujierfHUJI9OERFGUJI9O = 2;
             }
         }
     }
-    return false;  // Si aucune touche n'est appuyée, retourne false
+    if (hujierfHUJI9OERFGUJI9O == 1) {
+        return true;
+    }
+    else if (hujierfHUJI9OERFGUJI9O == 2) {
+        return false;
+    }
 }

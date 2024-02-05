@@ -2,16 +2,18 @@
 #include "LogicTicTacToe.h"
 #include "GameRender.h"
 
+
 int main()
 {
     LogicTicTacToe ticTacToeLogic;  // Instance de la logique du jeu
-    GameRenderer gameRenderer;  // Instance du rendu du jeu
-
+      // Instance du rendu du jeu
+    GameRenderer gameRenderer;
     // Initialisation de la fenêtre SFML avec la logique du jeu
     ticTacToeLogic.Starter();
     gameRenderer.InitializeWindow(ticTacToeLogic);
 
     gameRenderer.DrawBoard(ticTacToeLogic);
+    //Game(ticTacToeLogic, gameRenderer);
     while (true) {
         std::vector<std::vector<char>> Wait = ticTacToeLogic.GetBordSymbol();
         gameRenderer.HandleEvents(ticTacToeLogic);
@@ -26,9 +28,13 @@ int main()
             // Demander si le joueur veut recommencer
             if (gameRenderer.AskForRestart()) {
                 ticTacToeLogic.ReStart();  // Recommencer la partie
+                ticTacToeLogic.Starter();
+                gameRenderer.InitializeWindow(ticTacToeLogic);
+
+                gameRenderer.DrawBoard(ticTacToeLogic);
             }
             else {
-                break;  // Sortir de la boucle si le joueur ne veut pas recommencer
+                return 0;  // Sortir de la boucle si le joueur ne veut pas recommencer
             }
         }
         else if (ticTacToeLogic.CheckNul()) {
@@ -38,13 +44,22 @@ int main()
             // Demander si le joueur veut recommencer
             if (gameRenderer.AskForRestart()) {
                 ticTacToeLogic.ReStart();  // Recommencer la partie
+                ticTacToeLogic.Starter();
+                gameRenderer.InitializeWindow(ticTacToeLogic);
+
+                gameRenderer.DrawBoard(ticTacToeLogic);
             }
             else {
-                break;  // Sortir de la boucle si le joueur ne veut pas recommencer
+                return 0;  // Sortir de la boucle si le joueur ne veut pas recommencer
             }
         }
 
         // Mettre en pause pour éviter le rendu trop rapide
     }
+    return 0;
+}
+
+int Game(LogicTicTacToe ticTacToeLogic, GameRenderer gameRenderer)
+{
     return 0;
 }
