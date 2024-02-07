@@ -1,16 +1,24 @@
 #include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
-#define DEFAULT_BUFLEN 512
 #include <iostream>
+#include <vector>
+#include <thread>
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 
-int buffToInteger(char* buffer)
-{
-    int a = int((unsigned char)(buffer[0]) << 24 |
-                (unsigned char)(buffer[1]) << 16 |
-                (unsigned char)(buffer[2]) << 8 |
-                (unsigned char)(buffer[3]));
-    return a;
+#pragma comment(lib, "ws2_32.lib")
+
+#define DEFAULT_BUFLEN 512
+#define WM_SOCKET_EVENT (WM_USER + 1)
+#define SERVEUR_IP 10.1.144.16
+
+struct ClientData {
+    SOCKET socket;
+    sockaddr_in address;
 };
+
+std::vector<std::thread> clientThreads;
+std::vector<ClientData> clients;
 
 void somefunction(int v[], int len) {
     std::cout << "vector has " << len << " elements,"
@@ -18,62 +26,150 @@ void somefunction(int v[], int len) {
         << " last value is " << v[len - 1] << std::endl;
 }
 
-int main()
-{
+void handleJson(const char* json, SOCKET clientSocket) {
+    rapidjson::Document doc;
+    doc.Parse(json);
+
+    if (!doc.HasParseError()) {
+        if (doc.IsObject()) {
+            if (doc.HasMember("size") && doc["size"].IsInt() &&
+                doc.HasMember("x") && doc["x"].IsInt() &&
+                doc.HasMember("y") && doc["y"].IsInt()) {
+                int size = doc["size"].GetInt();
+                int x = doc["x"].GetInt();
+                int y = doc["y"].GetInt();
+
+                // Faites quelque chose avec les valeurs (size, x, y)
+                std::cout << "Received JSON: size=" << size << ", x=" << x << ", y=" << y << std::endl;
+
+                // Exemple de réponse JSON
+                rapidjson::Document response;
+                response.SetObject();
+                response.AddMember("result", "success", response.GetAllocator());
+
+                rapidjson::StringBuffer buffer;
+                rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+                response.Accept(writer);
+
+                // Envoyer la réponse JSON au client
+                send(clientSocket, buffer.GetString(), buffer.GetLength(), 0);
+            }
+        }
+    }
+    else {
+        std::cerr << "Error parsing JSON: " << doc.GetParseError() << std::endl;
+    }
+}
+
+void clientHandler(SOCKET clientSocket, sockaddr_in clientAddr) {
+    char recvbuf[DEFAULT_BUFLEN];
+    int iResult;
+
+    while (true) {
+        iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
+        if (iResult > 0) {
+            recvbuf[iResult] = '\0';  // Null-terminate the received data
+
+            // Handle JSON data
+            handleJson(recvbuf, clientSocket);
+        }
+        else if (iResult == 0) {
+            // La connexion a été fermée
+            std::cout << "Client disconnected: " << inet_ntoa(clientAddr.sin_addr) << std::endl;
+            closesocket(clientSocket);
+            break;
+        }
+        else {
+            // Erreur de réception
+            std::cerr << "recv failed: " << WSAGetLastError() << std::endl;
+            closesocket(clientSocket);
+            break;
+        }
+    }
+}
+
+void acceptClients(SOCKET listenSocket) {
+    while (true) {
+        SOCKET clientSocket;
+        sockaddr_in clientAddr;
+        int addrSize = sizeof(clientAddr);
+
+        clientSocket = accept(listenSocket, (SOCKADDR*)&clientAddr, &addrSize);
+        if (clientSocket == INVALID_SOCKET) {
+            std::cerr << "accept failed: " << WSAGetLastError() << std::endl;
+            continue;
+        }
+
+        std::cout << "Client connected: " << inet_ntoa(clientAddr.sin_addr) << std::endl;
+
+        // Créer un thread pour gérer ce client
+        clients.push_back({ clientSocket, clientAddr });
+        clientThreads.push_back(std::thread(clientHandler, clientSocket, clientAddr));
+    }
+}
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    switch (uMsg) {
+    case WM_SOCKET_EVENT:
+        printf("j'aime le poulet");
+        if (lParam & FD_ACCEPT) {
+            SOCKET listenSocket = (SOCKET)wParam;
+            printf("j'aime vraiment beaucoup les cuisse d'arno");
+            // Accepter de nouveaux clients
+            std::thread(acceptClients, listenSocket).detach();
+        }
+        break;
+
+    default:
+        return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+
+    return 0;
+}
+
+int main() {
     WSADATA WSAData;
     WSAStartup(MAKEWORD(2, 0), &WSAData);
-    SOCKET sock;
+
+    SOCKET listenSocket = socket(AF_INET, SOCK_STREAM, 0);
+
     SOCKADDR_IN sin;
-    sin.sin_addr.s_addr = inet_addr("127.0.0.1");
+    sin.sin_addr.s_addr = INADDR_ANY;
     sin.sin_family = AF_INET;
     sin.sin_port = htons(4148);
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    bind(sock, (SOCKADDR*)&sin, sizeof(sin));
-    listen(sock, 0);
-    int val = 0;
-    while (1)
-    {
-        int sizeof_csin = sizeof(sin);
-        val = accept(sock, (SOCKADDR*)&sin, &sizeof_csin);
-        
-            if (val != INVALID_SOCKET)
-            {
-                char recvbuf[DEFAULT_BUFLEN];
-                int iResult, iSendResult;
-                int recvbuflen = DEFAULT_BUFLEN;
 
-                // Receive until the peer shuts down the connection
-                do {
-                    iResult = recv(val, recvbuf, recvbuflen, 0);
-                    if (iResult > 0) {
-                        printf("Bytes received: %d\n", iResult);
+    bind(listenSocket, (SOCKADDR*)&sin, sizeof(sin));
+    listen(listenSocket, SOMAXCONN);
 
-                        int b[3];
-                        memcpy(b, recvbuf,3 * sizeof(int));
-                        somefunction(b, 3);//on s'en branle
+    // Création de la fenêtre pour recevoir les messages d'événements de socket
+    HWND hwnd = CreateWindowEx(0, L"STATIC", L"AsyncServerWindow", 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
 
-                        iSendResult = send(val, recvbuf, iResult, 0);
-                        if (iSendResult == SOCKET_ERROR) {
-                            printf("send failed: %d\n", WSAGetLastError());
-                            closesocket(val);
-                            WSACleanup();
-                            return 1;
-                        }
-                        printf("Bytes sent: %d\n", iSendResult);
-                    }
-                    else if (iResult == 0)
-                        printf("Connection closing...\n");
-                    else {
-                        printf("recv failed: %d\n", WSAGetLastError());
-                        closesocket(val);
-                        WSACleanup();
-                        return 1;
-                    }
-                } while (iResult > 0);
-                // int taille obligadade( combien de bite),int i,int j
-                // int Taille, int i, int j, bool error/succes
-            }
+    // Association de la socket avec la fenêtre pour recevoir les événements
+    WSAAsyncSelect(listenSocket, hwnd, WM_SOCKET_EVENT, FD_ACCEPT);
+    printf("serveur linked %c\n", sin.sin_addr.s_addr);
+    printf("serveur linked %s\n", sin.sin_addr.s_addr);
+    printf("serveur linked %l\n", sin.sin_addr.s_addr);
+    printf("serveur linked %d\n", sin.sin_addr.s_addr);
+    int addrsize = sizeof(sin);
+
+    char* ip = inet_ntoa(sin.sin_addr);
+
+    printf("%s", ip);
+
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
+
+    // Fermer tous les threads et sockets
+    for (size_t i = 0; i < clients.size(); ++i) {
+        closesocket(clients[i].socket);
+        clientThreads[i].join();
+    }
+
+    closesocket(listenSocket);
     WSACleanup();
+
     return 0;
 }

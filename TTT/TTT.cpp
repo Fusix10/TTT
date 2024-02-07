@@ -1,6 +1,7 @@
 #include <iostream>
 #include "LogicTicTacToe.h"
 #include "GameRender.h"
+#include "Client.h";
 
 
 int main()
@@ -13,8 +14,12 @@ int main()
     gameRenderer.InitializeWindow(ticTacToeLogic);
 
     gameRenderer.DrawBoard(ticTacToeLogic);
+    Client client;
+    client.Send(32*3, 0, 1);
     //Game(ticTacToeLogic, gameRenderer);
     while (true) {
+        client.Update();
+        
         std::vector<std::vector<char>> Wait = ticTacToeLogic.GetBordSymbol();
         gameRenderer.HandleEvents(ticTacToeLogic);
         if (Wait != ticTacToeLogic.GetBordSymbol()) {
@@ -56,10 +61,5 @@ int main()
 
         // Mettre en pause pour éviter le rendu trop rapide
     }
-    return 0;
-}
-
-int Game(LogicTicTacToe ticTacToeLogic, GameRenderer gameRenderer)
-{
     return 0;
 }
