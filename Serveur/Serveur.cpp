@@ -96,7 +96,7 @@ void acceptClients(SOCKET listenSocket) {
 
         clientSocket = accept(listenSocket, (SOCKADDR*)&clientAddr, &addrSize);
         if (clientSocket == INVALID_SOCKET) {
-            std::cerr << "accept failed: " << WSAGetLastError() << std::endl;
+
             continue;
         }
 
@@ -136,25 +136,47 @@ int main() {
     SOCKADDR_IN sin;
     sin.sin_addr.s_addr = INADDR_ANY;
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(4148);
+    sin.sin_port = htons(6666);
 
     bind(listenSocket, (SOCKADDR*)&sin, sizeof(sin));
     listen(listenSocket, SOMAXCONN);
 
+    // Création de la classe de fenêtre
+    WNDCLASS wc = {};
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = GetModuleHandle(NULL);
+    wc.lpszClassName = L"TicTacTeo";
+
+    if (!RegisterClass(&wc)) {
+        MessageBox(NULL, L"Failed to create window", L"Error", MB_OK | MB_ICONERROR);
+        return 1;
+    }
+
+    // Création de la fenêtre
+    HWND hwnd = CreateWindowEx(
+        0,                               // Style étendu
+        L"TicTacTeo",                    // Nom de la classe de fenêtre
+        L"WSAAsyncSelect Example",       // Titre de la fenêtre
+        WS_OVERLAPPEDWINDOW,             // Style de fenêtre
+        CW_USEDEFAULT, CW_USEDEFAULT,    // Position de la fenêtre
+        800, 600,                        // Taille de la fenêtre
+        NULL, NULL,                      // Fenêtre parent et menu
+        GetModuleHandle(NULL),           // Instance de l'application
+        NULL);                           // Paramètre de création
+
+    if (!hwnd) {
+        MessageBox(NULL, L"Failed to create window", L"Error", MB_OK | MB_ICONERROR);
+        return 1;
+    }
+
     // Création de la fenêtre pour recevoir les messages d'événements de socket
-    HWND hwnd = CreateWindowEx(0, L"STATIC", L"AsyncServerWindow", 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
+    //HWND hwnd = CreateWindowEx(0, L"STATIC", L"AsyncServerWindow", 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, NULL, NULL);
 
     // Association de la socket avec la fenêtre pour recevoir les événements
     WSAAsyncSelect(listenSocket, hwnd, WM_SOCKET_EVENT, FD_ACCEPT);
-    printf("serveur linked %c\n", sin.sin_addr.s_addr);
-    printf("serveur linked %s\n", sin.sin_addr.s_addr);
-    printf("serveur linked %l\n", sin.sin_addr.s_addr);
-    printf("serveur linked %d\n", sin.sin_addr.s_addr);
     int addrsize = sizeof(sin);
 
-    char* ip = inet_ntoa(sin.sin_addr);
 
-    printf("%s", ip);
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0)) {

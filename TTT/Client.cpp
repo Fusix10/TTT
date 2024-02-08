@@ -92,7 +92,7 @@ Client::Client()
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
 
-    verif = getaddrinfo("127.0.0.1", "4148", &hints, &result);
+    verif = getaddrinfo("10.1.144.16", "6666", &hints, &result);
 
     if (verif != 0) {
         printf("getaddrinfo failed with error: %d\n", verif);
