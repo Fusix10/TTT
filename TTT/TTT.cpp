@@ -2,6 +2,7 @@
 #include "LogicTicTacToe.h"
 #include "GameRender.h"
 #include "Client.h";
+#include "InputManager.h";
 
 
 int main()
@@ -9,11 +10,13 @@ int main()
     LogicTicTacToe ticTacToeLogic;  // Instance de la logique du jeu
       // Instance du rendu du jeu
     GameRenderer gameRenderer;
+
+    InputManager ManagerInput;
     // Initialisation de la fenêtre SFML avec la logique du jeu
     ticTacToeLogic.Starter();
-    gameRenderer.InitializeWindow(ticTacToeLogic);
+    gameRenderer.InitializeWindow(ticTacToeLogic.GetBord());
 
-    gameRenderer.DrawBoard(ticTacToeLogic);
+    gameRenderer.DrawBoard(ticTacToeLogic.GetBord());
     Client client;
     client.Send(32*3, 0, 1);
     //Game(ticTacToeLogic, gameRenderer);
@@ -21,10 +24,12 @@ int main()
         client.Update();
         
         std::vector<std::vector<char>> Wait = ticTacToeLogic.GetBordSymbol();
-        gameRenderer.HandleEvents(ticTacToeLogic);
+        
+        ManagerInput.HandleEvents(ticTacToeLogic.GetBord(), gameRenderer.GetWindow(), gameRenderer.GetCellSize());
+
         if (Wait != ticTacToeLogic.GetBordSymbol()) {
-            gameRenderer.DrawBoard(ticTacToeLogic);
-            gameRenderer.DrawSymbol(ticTacToeLogic);
+            gameRenderer.DrawBoard(ticTacToeLogic.GetBord());
+            gameRenderer.DrawSymbol(ticTacToeLogic.GetBord(), ticTacToeLogic.GetBordSymbol());
         }
         if (ticTacToeLogic.CheckWin()) {
             // Afficher le résultat de la partie (gagné)
@@ -34,9 +39,9 @@ int main()
             if (gameRenderer.AskForRestart()) {
                 ticTacToeLogic.ReStart();  // Recommencer la partie
                 ticTacToeLogic.Starter();
-                gameRenderer.InitializeWindow(ticTacToeLogic);
+                gameRenderer.InitializeWindow(ticTacToeLogic.GetBord());
 
-                gameRenderer.DrawBoard(ticTacToeLogic);
+                gameRenderer.DrawBoard(ticTacToeLogic.GetBord());
             }
             else {
                 return 0;  // Sortir de la boucle si le joueur ne veut pas recommencer
@@ -50,9 +55,9 @@ int main()
             if (gameRenderer.AskForRestart()) {
                 ticTacToeLogic.ReStart();  // Recommencer la partie
                 ticTacToeLogic.Starter();
-                gameRenderer.InitializeWindow(ticTacToeLogic);
+                gameRenderer.InitializeWindow(ticTacToeLogic.GetBord());
 
-                gameRenderer.DrawBoard(ticTacToeLogic);
+                gameRenderer.DrawBoard(ticTacToeLogic.GetBord());
             }
             else {
                 return 0;  // Sortir de la boucle si le joueur ne veut pas recommencer

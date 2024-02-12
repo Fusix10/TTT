@@ -132,12 +132,14 @@
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="GameRender.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="LogicTicTacToe.cpp" />
     <ClCompile Include="TTT.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h" />
     <ClInclude Include="GameRender.h" />
+    <ClInclude Include="InputManager.h" />
     <ClInclude Include="LogicTicTacToe.h" />
   </ItemGroup>
   <ItemGroup>

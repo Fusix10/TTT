@@ -8,17 +8,17 @@ GameRenderer::GameRenderer() {
     CellSize.y = 0;
 }
 
-void GameRenderer::InitializeWindow(const LogicTicTacToe& ticTacToeLogic) {
+void GameRenderer::InitializeWindow(const sf::Vector2f Bord) {
     Window.create(sf::VideoMode(1920, 1080), "Tic Tac Toe SFML"); //taille + nom de la Window
-    CellSize.x = static_cast<float>(Window.getSize().x) / static_cast<float>(ticTacToeLogic.GetBord().x);
-    CellSize.y = static_cast<float>(Window.getSize().y) / static_cast<float>(ticTacToeLogic.GetBord().y);
+    CellSize.x = static_cast<float>(Window.getSize().x) / static_cast<float>(Bord.x);
+    CellSize.y = static_cast<float>(Window.getSize().y) / static_cast<float>(Bord.y);
 }
 
-void GameRenderer::DrawBoard(const LogicTicTacToe& ticTacToeLogic) {
+void GameRenderer::DrawBoard(const sf::Vector2f Bord) {
     Window.clear();  // Efface le contenu précédent
 
     // Dessine les lignes verticales
-    for (int i = 1; i < ticTacToeLogic.GetBord().x; ++i) {
+    for (int i = 1; i < Bord.x; ++i) {
         sf::VertexArray Line(sf::Lines, 2);
         Line[0].position = sf::Vector2f(i * CellSize.x, 0);
         Line[1].position = sf::Vector2f(i * CellSize.x, static_cast<float>(Window.getSize().y));
@@ -27,7 +27,7 @@ void GameRenderer::DrawBoard(const LogicTicTacToe& ticTacToeLogic) {
 
 
     // Dessine les lignes horizontales
-    for (int j = 1; j < ticTacToeLogic.GetBord().y; ++j) {
+    for (int j = 1; j < Bord.y; ++j) {
         sf::VertexArray Line(sf::Lines, 2);
         Line[0].position = sf::Vector2f(0, j * CellSize.y);
         Line[1].position = sf::Vector2f(static_cast<float>(Window.getSize().x), j * CellSize.y);
@@ -37,14 +37,21 @@ void GameRenderer::DrawBoard(const LogicTicTacToe& ticTacToeLogic) {
     Window.display();
 }
 
-void GameRenderer::DrawSymbol(const LogicTicTacToe& ticTacToeLogic) {
+sf::RenderWindow* GameRenderer::GetWindow() {
+    return &Window;
+};
 
-    for (int i = 0; i < ticTacToeLogic.GetBord().x; ++i) {
-        for (int j = 0; j < ticTacToeLogic.GetBord().y; ++j) {
-            if (ticTacToeLogic.GetBordSymbol()[i][j] == 'x') {
+sf::Vector2f GameRenderer::GetCellSize() {
+    return CellSize;
+};
+void GameRenderer::DrawSymbol(const sf::Vector2f Bord, std::vector<std::vector<char>> BordSymbol) {
+
+    for (int i = 0; i < Bord.x; ++i) {
+        for (int j = 0; j < Bord.y; ++j) {
+            if (BordSymbol[i][j] == 'x') {
                 DrawX(i, j);
             }
-            else if (ticTacToeLogic.GetBordSymbol()[i][j] == 'o') {
+            else if (BordSymbol[i][j] == 'o') {
                 DrawO(i, j);
             }
         }
@@ -77,29 +84,6 @@ void GameRenderer::DrawO(int positionX, int positionY) {
     circle.setFillColor(sf::Color::Blue);
 
     Window.draw(circle);
-}
-
-void GameRenderer::HandleEvents(LogicTicTacToe& ticTacToeLogic) {
-    sf::Event event;
-    while (Window.pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
-            Window.close();
-        }
-
-        if (event.type == sf::Event::MouseButtonPressed) {
-            if (event.mouseButton.button == sf::Mouse::Left) {
-                // Convertir les coordonnées de la souris en indices de tableau
-                int mouseX = event.mouseButton.x / CellSize.x;
-                int mouseY = event.mouseButton.y / CellSize.y;
-
-                // S'assurer que les indices sont dans les limites du tableau
-                if (mouseX >= 0 && mouseX < ticTacToeLogic.GetBord().x && mouseY >= 0 && mouseY < ticTacToeLogic.GetBord().y) {
-                    // Effectuer le mouvement
-                    ticTacToeLogic.MakeMove(ticTacToeLogic.GetActuelPlayer(), mouseX, mouseY);
-                }
-            }
-        }
-    }
 }
 
 void GameRenderer::DisplayResult(const std::string& result) {

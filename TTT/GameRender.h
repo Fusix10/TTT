@@ -13,11 +13,13 @@ private:
 
 public:
     GameRenderer(); //Constructeur
+    sf::RenderWindow* GetWindow();
+    sf::Vector2f GetCellSize();
 
-    void InitializeWindow(const LogicTicTacToe& ticTacToeLogic); //initialise la Window
-    void DrawBoard(const LogicTicTacToe& ticTacToeLogic); //désine le Tableau
-    void DrawSymbol(const LogicTicTacToe& ticTacToeLogic); //désine les symbols
-    void HandleEvents(LogicTicTacToe& ticTacToeLogic);
+    void InitializeWindow(const sf::Vector2f Bord); //initialise la Window
+    void DrawBoard(const sf::Vector2f Bord); //désine le Tableau
+    void DrawSymbol(const sf::Vector2f Bord, std::vector<std::vector<char>> BordSymbol); //désine les symbols
+    
     void DisplayResult(const std::string& result);
     bool AskForRestart();
 };
