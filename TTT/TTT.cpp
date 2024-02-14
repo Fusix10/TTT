@@ -20,22 +20,20 @@ int main()
     Client client;
     client.Send(32*3, 0, 1);
     //Game(ticTacToeLogic, gameRenderer);
+    std::vector<std::vector<char>> RecupBord;
     while (true) {
         client.Update();
-        
-        std::vector<std::vector<char>> Wait = ticTacToeLogic.GetBordSymbol();
-        
-        ManagerInput.HandleEvents(ticTacToeLogic.GetBord(), gameRenderer.GetWindow(), gameRenderer.GetCellSize());
-
-        if (Wait != ticTacToeLogic.GetBordSymbol()) {
+        int RecupPlayer = ticTacToeLogic.GetActuelPlayer();
+        ManagerInput.HandleEvents(ticTacToeLogic.GetBord(), gameRenderer.GetWindow(), gameRenderer.GetCellSize(), &ticTacToeLogic);
+        if(ticTacToeLogic.GetActuelPlayer() != RecupPlayer){
             gameRenderer.DrawBoard(ticTacToeLogic.GetBord());
             gameRenderer.DrawSymbol(ticTacToeLogic.GetBord(), ticTacToeLogic.GetBordSymbol());
         }
+
         if (ticTacToeLogic.CheckWin()) {
             // Afficher le résultat de la partie (gagné)
             gameRenderer.DisplayResult("Joueur " + std::to_string(ticTacToeLogic.GetActuelPlayer()) + " a gagné !");
-
-            // Demander si le joueur veut recommencer
+                        // Demander si le joueur veut recommencer
             if (gameRenderer.AskForRestart()) {
                 ticTacToeLogic.ReStart();  // Recommencer la partie
                 ticTacToeLogic.Starter();
